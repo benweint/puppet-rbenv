@@ -3,12 +3,13 @@
 #
 define rbenv::compile(
   $user,
-  $ruby   = $title,
-  $group  = $user,
-  $home   = '',
-  $root   = '',
-  $source = '',
-  $global = false
+  $ruby     = $title,
+  $group    = $user,
+  $home     = '',
+  $root     = '',
+  $source   = '',
+  $global   = false,
+  $makeopts = undef,
 ) {
 
   # Workaround http://projects.puppetlabs.com/issues/9848
@@ -54,13 +55,19 @@ define rbenv::compile(
 
   # Set Timeout to disabled cause we need a lot of time to compile.
   # Use HOME variable and define PATH correctly.
+  $compile_env_vars = [ "HOME=${home_path}" ]
+
+  if $makeopts {
+    $compile_env_vars += [ "MAKEOPTS=${makeopts}" ]
+  }
+
   exec { "rbenv::compile ${user} ${ruby}":
     command     => "rbenv install ${ruby} && touch ${root_path}/.rehash",
     timeout     => 0,
     user        => $user,
     group       => $group,
     cwd         => $home_path,
-    environment => [ "HOME=${home_path}" ],
+    environment => $compile_env_vars,
     creates     => "${versions}/${ruby}",
     path        => $path,
     require     => Rbenv::Plugin["rbenv::plugin::rubybuild::${user}"],
