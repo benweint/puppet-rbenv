@@ -57,7 +57,7 @@ define rbenv::compile(
   # Use HOME variable and define PATH correctly.
   $compile_env_vars = [ "HOME=${home_path}" ]
 
-  if $makeopts {
+  if $makeopts != undef {
     $compile_env_vars += [ "MAKEOPTS=${makeopts}" ]
   }
 
