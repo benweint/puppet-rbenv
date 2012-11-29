@@ -10,6 +10,8 @@ define rbenv::compile(
   $source   = '',
   $global   = false,
   $makeopts = undef,
+  $makeopts = undef,
+  $configureopts = undef,
 ) {
 
   # Workaround http://projects.puppetlabs.com/issues/9848
@@ -55,11 +57,8 @@ define rbenv::compile(
 
   # Set Timeout to disabled cause we need a lot of time to compile.
   # Use HOME variable and define PATH correctly.
-  $compile_env_vars = [ "HOME=${home_path}" ]
-
-  if $makeopts != undef {
-    $compile_env_vars += [ "MAKEOPTS=${makeopts}" ]
-  }
+  $compile_env_vars = [ "HOME=${home_path}", "MAKEOPTS=\"${makeopts}\"",
+                        "CONFIGURE_OPTS=\"${configureopts}\"" ]
 
   exec { "rbenv::compile ${user} ${ruby}":
     command     => "rbenv install ${ruby} && touch ${root_path}/.rehash",
