@@ -57,8 +57,22 @@ define rbenv::compile(
 
   # Set Timeout to disabled cause we need a lot of time to compile.
   # Use HOME variable and define PATH correctly.
-  $compile_env_vars = [ "HOME=${home_path}", "MAKEOPTS=\"${makeopts}\"",
-                        "CONFIGURE_OPTS=\"${configureopts}\"" ]
+  if $makeopts and $configureopts {
+    $compile_env_vars = [ "HOME=${home_path}",
+                          "CONFIGURE_OPTS=\"${configureopts}\"",
+                          "MAKEOPTS=\"${makeopts}\"" ]
+  }
+  elsif $makeopts {
+    $compile_env_vars = [ "HOME=${home_path}",
+                          "MAKEOPTS=\"${makeopts}\"" ]
+  }
+  elsif $configureopts {
+    $compile_env_vars = [ "HOME=${home_path}",
+                          "CONFIGURE_OPTS=\"${configureopts}\"" ]
+  }
+  else {
+    $compile_env_vars = [ "HOME=${home_path}" ]
+  }
 
   exec { "rbenv::compile ${user} ${ruby}":
     command     => "rbenv install ${ruby} && touch ${root_path}/.rehash",
