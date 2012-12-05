@@ -12,6 +12,7 @@ define rbenv::compile(
   $makeopts = undef,
   $makeopts = undef,
   $configureopts = undef,
+  $install_bundler = true,
 ) {
 
   # Workaround http://projects.puppetlabs.com/issues/9848
@@ -59,16 +60,16 @@ define rbenv::compile(
   # Use HOME variable and define PATH correctly.
   if $makeopts and $configureopts {
     $compile_env_vars = [ "HOME=${home_path}",
-                          "CONFIGURE_OPTS=\"${configureopts}\"",
-                          "MAKEOPTS=\"${makeopts}\"" ]
+                          "CONFIGURE_OPTS=${configureopts}",
+                          "MAKEOPTS=${makeopts}" ]
   }
   elsif $makeopts {
     $compile_env_vars = [ "HOME=${home_path}",
-                          "MAKEOPTS=\"${makeopts}\"" ]
+                          "MAKEOPTS=${makeopts}" ]
   }
   elsif $configureopts {
     $compile_env_vars = [ "HOME=${home_path}",
-                          "CONFIGURE_OPTS=\"${configureopts}\"" ]
+                          "CONFIGURE_OPTS=${configureopts}" ]
   }
   else {
     $compile_env_vars = [ "HOME=${home_path}" ]
@@ -85,6 +86,7 @@ define rbenv::compile(
     path        => $path,
     require     => Rbenv::Plugin["rbenv::plugin::rubybuild::${user}"],
     before      => Exec["rbenv::rehash ${user} ${ruby}"],
+    logoutput   => true,
   }
 
   exec { "rbenv::rehash ${user} ${ruby}":
