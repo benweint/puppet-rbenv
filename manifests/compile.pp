@@ -103,6 +103,7 @@ define rbenv::compile(
   #
   if $install_bundler {
     rbenv::gem {"rbenv::bundler ${user} ${ruby}":
+      ensure => latest,
       user   => $user,
       ruby   => $ruby,
       gem    => 'bundler',
