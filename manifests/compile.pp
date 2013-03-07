@@ -13,6 +13,7 @@ define rbenv::compile(
   $makeopts = undef,
   $configureopts = undef,
   $install_bundler = true,
+  $bundler_version = 'latest',
 ) {
 
   # Workaround http://projects.puppetlabs.com/issues/9848
@@ -103,7 +104,7 @@ define rbenv::compile(
   #
   if $install_bundler {
     rbenv::gem {"rbenv::bundler ${user} ${ruby}":
-      ensure => latest,
+      ensure => $bundler_version,
       user   => $user,
       ruby   => $ruby,
       gem    => 'bundler',
