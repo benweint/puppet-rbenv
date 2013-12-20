@@ -9,10 +9,8 @@ define rbenv::compile(
   $root     = '',
   $source   = '',
   $global   = false,
-  $makeopts = '""',
-  $configureopts = '""',
-  $rubyconfigureopts = '""',
-  $rubymakeopts = '""',
+  $configureopts = undef,
+  $rubyconfigureopts = undef,
   $install_bundler = true,
   $bundler_version = 'latest',
 ) {
@@ -60,11 +58,22 @@ define rbenv::compile(
 
   # Set Timeout to disabled cause we need a lot of time to compile.
   # Use HOME variable and define PATH correctly.
-  $compile_env_vars = [ "HOME=${home_path}",
-                        "CONFIGURE_OPTS=${configureopts}",
-                        "RUBY_CONFIGURE_OPTS=${rubyconfigureopts}",
-                        "MAKE_OPTS=${makeopts}",
-                        "RUBY_MAKE_OPTS=${rubymakeopts}", ]
+  if $rubyconfigureopts and $configureopts {
+    $compile_env_vars = [ "HOME=${home_path}",
+                          "CONFIGURE_OPTS=${configureopts}",
+                          "RUBY_CONFIGURE_OPTS=${rubyconfigureopts}", ]
+  }
+  elsif $rubyconfigureopts {
+    $compile_env_vars = [ "HOME=${home_path}",
+                          "RUBY_CONFIGURE_OPTS=${rubyconfigureopts}", ]
+  }
+  elsif $configureopts {
+    $compile_env_vars = [ "HOME=${home_path}",
+                          "CONFIGURE_OPTS=${configureopts}", ]
+  }
+  else {
+    $compile_env_vars = [ "HOME=${home_path}", ]
+  }
 
   exec { "rbenv::compile ${user} ${ruby}":
     command     => "rbenv install ${ruby} && touch ${root_path}/.rehash",
