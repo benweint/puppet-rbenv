@@ -10,8 +10,9 @@ define rbenv::compile(
   $source   = '',
   $global   = false,
   $makeopts = undef,
-  $makeopts = undef,
   $configureopts = undef,
+  $rubyconfigureopts = undef,
+  $rubymakeopts = undef,
   $install_bundler = true,
   $bundler_version = 'latest',
 ) {
@@ -59,21 +60,22 @@ define rbenv::compile(
 
   # Set Timeout to disabled cause we need a lot of time to compile.
   # Use HOME variable and define PATH correctly.
-  if $makeopts and $configureopts {
-    $compile_env_vars = [ "HOME=${home_path}",
-                          "CONFIGURE_OPTS=${configureopts}",
-                          "MAKEOPTS=${makeopts}" ]
+  $compile_env_vars = [ "HOME=${home_path}" ]
+
+  if $configureopts {
+    $compile_env_vars = concat($compile_env_vars, ["CONFIGURE_OPTS=${configureopts}"])
   }
-  elsif $makeopts {
-    $compile_env_vars = [ "HOME=${home_path}",
-                          "MAKEOPTS=${makeopts}" ]
+
+  if $rubyconfigureopts {
+    $compile_env_vars = concat($compile_env_vars, ["RUBY_CONFIGURE_OPTS=${rubyconfigureopts}"])
   }
-  elsif $configureopts {
-    $compile_env_vars = [ "HOME=${home_path}",
-                          "CONFIGURE_OPTS=${configureopts}" ]
+
+  if $makeopts {
+    $compile_env_vars = concat($compile_env_vars, ["CONFIGURE_OPTS=${makeopts}"])
   }
-  else {
-    $compile_env_vars = [ "HOME=${home_path}" ]
+
+  if $rubymakeopts {
+    $compile_env_vars = concat($compile_env_vars, ["CONFIGURE_OPTS=${rubymakeopts}"])
   }
 
   exec { "rbenv::compile ${user} ${ruby}":
