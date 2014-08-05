@@ -13,7 +13,7 @@ define rbenv::plugin(
   $plugins     = "${root_path}/plugins"
   $destination = "${plugins}/${plugin_name}"
 
-  if $source !~ /^git(\+ssh)?:/
+  if $source !~ /^git(\+ssh)?:/ {
     fail('Only git plugins are supported')
   }
 
