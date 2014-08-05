@@ -7,6 +7,8 @@ define rbenv::compile(
   $group    = $user,
   $home     = '',
   $root     = '',
+  $shell    = '',
+  $lang     = '',
   $source   = '',
   $global   = false,
   $configureopts = undef,
@@ -16,8 +18,13 @@ define rbenv::compile(
 ) {
 
   # Workaround http://projects.puppetlabs.com/issues/9848
-  $home_path = $home ? { '' => "/home/${user}", default => $home }
-  $root_path = $root ? { '' => "${home_path}/.rbenv", default => $root }
+  $home_path  = $home  ? { '' => "/home/${user}", default => $home }
+  $root_path  = $root  ? { '' => "${home_path}/.rbenv", default => $root }
+
+  # Rubinius needs the SHELL and LANG environment variables set in order to
+  # build correctly.
+  $shell_path = $shell ? { '' => "/bin/bash", default => $shell }
+  $lang_value = $lang  ? { '' => "en_US.UTF-8", default => $lang }
 
   $bin         = "${root_path}/bin"
   $shims       = "${root_path}/shims"
@@ -60,19 +67,27 @@ define rbenv::compile(
   # Use HOME variable and define PATH correctly.
   if $rubyconfigureopts and $configureopts {
     $compile_env_vars = [ "HOME=${home_path}",
+                          "SHELL=${shell_path}",
+                          "LANG=${lang_value}",
                           "CONFIGURE_OPTS=${configureopts}",
-                          "RUBY_CONFIGURE_OPTS=${rubyconfigureopts}", ]
+                          "RUBY_CONFIGURE_OPTS=${rubyconfigureopts}",]
   }
   elsif $rubyconfigureopts {
     $compile_env_vars = [ "HOME=${home_path}",
+                          "SHELL=${shell_path}",
+                          "LANG=${lang_value}",
                           "RUBY_CONFIGURE_OPTS=${rubyconfigureopts}", ]
   }
   elsif $configureopts {
     $compile_env_vars = [ "HOME=${home_path}",
+                          "SHELL=${shell_path}",
+                          "LANG=${lang_value}",
                           "CONFIGURE_OPTS=${configureopts}", ]
   }
   else {
-    $compile_env_vars = [ "HOME=${home_path}", ]
+    $compile_env_vars = [ "HOME=${home_path}",
+                          "SHELL=${shell_path}",
+                          "LANG=${lang_value}", ]
   }
 
   exec { "rbenv::compile ${user} ${ruby}":
